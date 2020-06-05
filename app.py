@@ -34,6 +34,15 @@ class TodoDTO():
         self.date_created = date_created
 
 
+class TodoService():
+
+    @staticmethod
+    def todo_dto_mapper(todo):
+        todo_dto = TodoDTO(todo.id, todo.content,
+                           todo.completed, todo.date_created)
+        return todo_dto
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -56,16 +65,17 @@ def newTask():
 @app.route('/todo', methods=['GET'])
 def allTasks():
     tasks = Todo.query.order_by(Todo.date_created).all()
-    json_tasks = list(map(lambda task: task.toJson, tasks))
+    json_tasks = []
+    for task in tasks:
+        json_tasks.append(TodoService.todo_dto_mapper(task))
     print(json_tasks)
-    return 'nice'
+    return jsonpickle.encode(json_tasks, unpicklable=False)
 
 
 @app.route('/todo/first', methods=['GET'])
 def lastCreatedTasks():
     task = Todo.query.order_by(Todo.date_created).first()
-    task_dto = TodoDTO(task.id, task.content,
-                       task.completed, task.date_created)
+    task_dto = TodoService.todo_dto_mapper(task)
     return jsonpickle.encode(task_dto, unpicklable=False)
 
 
