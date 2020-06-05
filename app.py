@@ -49,13 +49,12 @@ def index():
 
 
 @app.route('/todo', methods=['POST'])
-def newTask():
+def new_todo():
     body = request.json
-    new_task = Todo(content=body.get('content'))
-    print(new_task)
+    new_todo = Todo(content=body.get('content'))
 
     try:
-        db.session.add(new_task)
+        db.session.add(new_todo)
         db.session.commit()
         return 'saved'
     except:
@@ -63,20 +62,19 @@ def newTask():
 
 
 @app.route('/todo', methods=['GET'])
-def allTasks():
-    tasks = Todo.query.order_by(Todo.date_created).all()
-    json_tasks = []
-    for task in tasks:
-        json_tasks.append(TodoService.todo_dto_mapper(task))
-    print(json_tasks)
-    return jsonpickle.encode(json_tasks, unpicklable=False)
+def all_todos():
+    todos = Todo.query.order_by(Todo.date_created).all()
+    json_todos = []
+    for todo in todos:
+        json_todos.append(TodoService.todo_dto_mapper(todo))
+    return jsonpickle.encode(json_todos, unpicklable=False)
 
 
 @app.route('/todo/first', methods=['GET'])
-def lastCreatedTasks():
-    task = Todo.query.order_by(Todo.date_created).first()
-    task_dto = TodoService.todo_dto_mapper(task)
-    return jsonpickle.encode(task_dto, unpicklable=False)
+def last_created_todos():
+    todo = Todo.query.order_by(Todo.date_created).first()
+    todo_dto = TodoService.todo_dto_mapper(todo)
+    return jsonpickle.encode(todo_dto, unpicklable=False)
 
 
 if __name__ == "__main__":
