@@ -64,6 +64,19 @@ def new_todo():
         return make_response(), status.HTTP_500_INTERNAL_SERVER_ERROR
 
 
+@app.route('/todo', methods=['PUT'])
+def update_todo():
+
+    task_to_update = Todo.query.get_or_404(request.json.get('id'))
+    task_to_update.content = request.json.get('content')
+
+    try:
+        db.session.commit()
+        return make_response(), status.HTTP_200_OK
+    except:
+        return make_response(), status.HTTP_500_INTERNAL_SERVER_ERROR
+
+
 @app.route('/todo/<int:id>', methods=['DELETE'])
 def todo(id):
 
