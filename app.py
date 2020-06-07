@@ -64,6 +64,19 @@ def new_todo():
         return make_response(), status.HTTP_500_INTERNAL_SERVER_ERROR
 
 
+@app.route('/todo', methods=['PUT'])
+def update_todo():
+
+    task_to_update = Todo.query.get_or_404(request.json.get('id'))
+    task_to_update.content = request.json.get('content')
+
+    try:
+        db.session.commit()
+        return make_response(), status.HTTP_200_OK
+    except:
+        return make_response(), status.HTTP_500_INTERNAL_SERVER_ERROR
+
+
 @app.route('/todo/<int:id>', methods=['DELETE'])
 def todo(id):
 
@@ -89,7 +102,14 @@ def all_todos():
 
 @app.route('/todo/first', methods=['GET'])
 def last_created_todos():
-    todo = Todo.query.order_by(Todo.date_created).first()
+    todo = Todo.query.order_by(Todo.date_created).last()
+    todo_dto = TodoService.todo_dto_mapper(todo)
+    return jsonpickle.encode(todo_dto, unpicklable=False)
+
+
+@app.route('/todo/<int:id>', methods=['GET'])
+def one_todo_by_id(id):
+    todo = Todo.query.get_or_404(id)
     todo_dto = TodoService.todo_dto_mapper(todo)
     return jsonpickle.encode(todo_dto, unpicklable=False)
 
