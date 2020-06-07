@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
+from flask_api import FlaskAPI, status
+
 from datetime import datetime
 import json
 import jsonpickle
 
-
+# app = FlaskAPI(__name__)
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
@@ -56,9 +58,24 @@ def new_todo():
     try:
         db.session.add(new_todo)
         db.session.commit()
-        return 'saved'
+        return make_response(), status.HTTP_201_CREATED
+
     except:
-        return 'There was an error'
+        return make_response(), status.HTTP_500_INTERNAL_SERVER_ERROR
+
+
+@app.route('/todo/<int:id>', methods=['DELETE'])
+def todo(id):
+
+    todo_to_delete = Todo.query.get_or_404(id)
+
+    try:
+        db.session.delete(todo_to_delete)
+        db.session.commit()
+        return make_response(), status.HTTP_200_OK
+
+    except:
+        return make_response(), status.HTTP_500_INTERNAL_SERVER_ERROR
 
 
 @app.route('/todo', methods=['GET'])
